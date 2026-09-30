@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediConnect Pro - Doctor Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- AUTH VIEW CONTAINER -->
+    <div id="authView" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-teal-900 via-emerald-900 to-slate-900">
+        <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden fade-in border border-emerald-800/20">
+            <!-- Header Brand -->
+            <div class="bg-gradient-to-r from-emerald-700 to-teal-800 p-6 text-center text-white relative">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center mb-3 backdrop-blur-sm border border-white/20">
+                    <i class="fa-solid fa-stethoscope text-3xl text-emerald-300"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">MediConnect Pro</h1>
+                <p class="text-emerald-200 text-sm mt-1">Secure Doctor Portal & Patient Management</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex border-b border-slate-200 bg-slate-50">
+                <button onclick="switchAuthTab('login')" id="loginTabBtn" class="flex-1 py-3 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 bg-white transition">Doctor Login</button>
+                <button onclick="switchAuthTab('register')" id="registerTabBtn" class="flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700 transition">New Registration</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginFormContainer" class="p-6 space-y-4">
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-amber-600 flex-shrink-0"></i>
+                    <div>
+                        <span class="font-semibold">Demo Credentials:</span><br>
+                        ID/Email: <strong class="text-amber-900">doc123</strong> | Password: <strong class="text-amber-900">password123</strong>
+                    </div>
+                </div>
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Doctor ID / Email</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-user-doctor"></i></span>
+                            <input type="text" id="loginId" required placeholder="e.g. doc123 or doctor@hospital.com" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                        <span>Sign In to Portal</span>
+                        <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerFormContainer" class="p-6 space-y-4 hidden">
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Full Name & Title</label>
+                        <input type="text" id="regName" required placeholder="Dr. Jane Doe, MD" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Specialization</label>
+                            <input type="text" id="regSpecialization" required placeholder="Cardiologist" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">License ID</label>
+                            <input type="text" id="regLicense" required placeholder="MED-99381" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Hospital / Clinic Name</label>
+                        <input type="text" id="regHospital" required placeholder="Metro Health Center" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Email Address (Login ID)</label>
+                        <input type="email" id="regEmail" required placeholder="doctor@clinic.com" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Secure Password</label>
+                        <input type="password" id="regPassword" required placeholder="••••••••" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                    </div>
+                    <button type="submit" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                        <span>Register Doctor Account</span>
+                        <i class="fa-solid fa-user-plus text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD VIEW CONTAINER (Hidden by default) -->
+    <div id="dashboardView" class="flex-1 flex flex-col hidden">
+        <!-- Top Navigation Bar -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+                        <i class="fa-solid fa-stethoscope"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-slate-900 text-lg tracking-tight">MediConnect <span class="text-emerald-600 font-medium text-xs bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Doctor Portal</span></span>
+                    </div>
+                </div>
+
+                <!-- Doctor Profile & Logout -->
+                <div class="flex items-center gap-4">
+                    <button onclick="simulateNewRequest()" class="hidden sm:flex items-center gap-2 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 px-3 py-1.5 rounded-xl text-xs font-medium transition">
+                        <i class="fa-solid fa-bolt text-teal-600"></i>
+                        <span>Simulate Patient Request</span>
+                    </button>
+                    <div class="flex items-center gap-3 pl-3 border-l border-slate-200">
+                        <div class="w-9 h-9 bg-emerald-100 text-emerald-800 font-semibold rounded-full flex items-center justify-center text-sm" id="doctorAvatarInitials">
+                            DR
+                        </div>
+                        <div class="hidden md:block text-left">
+                            <div class="text-xs font-bold text-slate-900" id="headerDocName">Dr. Robert Smith</div>
+                            <div class="text-[10px] text-slate-500" id="headerDocSpec">Cardiologist</div>
+                        </div>
+                        <button onclick="handleLogout()" title="Logout" class="ml-2 w-9 h-9 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            
+            <!-- Statistics Overview Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Requests</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1" id="statTotal">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Pending Review</p>
+                        <h3 class="text-2xl font-bold text-amber-600 mt-1" id="statPending">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Prescribed & Approved</p>
+                        <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="statApproved">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Unique Patients</p>
+                        <h3 class="text-2xl font-bold text-slate-900 mt-1" id="statPatients">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Sections / Tabs -->
+            <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+                <!-- Table Header & Filters -->
+                <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Patient Consultation Requests</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Review patient symptoms, approve cases, and prescribe medications or medical tests.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                            <input type="text" id="searchPatient" oninput="filterRequests()" placeholder="Search patient..." class="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition w-44 sm:w-60">
+                        </div>
+                        <select id="statusFilter" onchange="filterRequests()" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                            <option value="all">All Status</option>
+                            <option value="Pending" selected>Pending</option>
+                            <option value="Approved">Approved</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Requests Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
+                                <th class="py-3 px-6">Patient Details</th>
+                                <th class="py-3 px-6">Symptoms & Condition</th>
+                                <th class="py-3 px-6">Requested Date</th>
+                                <th class="py-3 px-6">Status</th>
+                                <th class="py-3 px-6 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden p-12 text-center">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full mx-auto flex items-center justify-center text-xl mb-3">
+                        <i class="fa-solid fa-inbox"></i>
+                    </div>
+                    <h3 class="text-slate-800 font-semibold text-base">No patient requests found</h3>
+                    <p class="text-slate-500 text-xs mt-1">Click "Simulate Patient Request" above to test incoming patient cases instantly.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- REVIEW & PRESCRIPTION MODAL -->
+    <div id="reviewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl fade-in border border-slate-200">
+            <div class="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50 sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-file-medical"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg" id="modalPatientName">Patient Review</h3>
+                        <p class="text-xs text-slate-500" id="modalPatientMeta">Age: 32 | Gender: Female</p>
+                    </div>
+                </div>
+                <button onclick="closeReviewModal()" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="prescriptionForm" onsubmit="submitPrescription(event)" class="p-6 space-y-6">
+                <input type="hidden" id="modalRequestId">
+
+                <!-- Patient Symptoms Display -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">Reported Symptoms & Notes</span>
+                    <p class="text-sm text-slate-700 italic" id="modalSymptoms">Patient notes go here...</p>
+                </div>
+
+                <!-- Diagnosis Input -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Clinical Diagnosis</label>
+                    <input type="text" id="modalDiagnosis" required placeholder="e.g. Acute Upper Respiratory Tract Infection" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition">
+                </div>
+
+                <!-- Medications Builder -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-slate-600">Prescribe Medicines</label>
+                        <button type="button" onclick="addMedicineRow()" class="text-xs text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Medicine
+                        </button>
+                    </div>
+                    <div id="medicineListContainer" class="space-y-2">
+                        <!-- Dynamic rows injected here -->
+                    </div>
+                </div>
+
+                <!-- Required Medical Tests Selection -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-600 block">Required Medical Tests</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="medTests" value="Complete Blood Count (CBC)" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>CBC Blood Test</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="medTests" value="Chest X-Ray" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Chest X-Ray</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="medTests" value="Lipid Profile" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Lipid Profile</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="medTests" value="ECG (Electrocardiogram)" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>ECG</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="medTests" value="Urinalysis" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Urinalysis</span>
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="medTests" value="Blood Glucose Test" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span>Blood Glucose</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Doctor Advice & Instructions -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Doctor Advice & Precautions</label>
+                    <textarea id="modalAdvice" rows="3" placeholder="Rest for 3 days, drink plenty of fluids, avoid heavy lifting..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:outline-none transition"></textarea>
+                </div>
+
+                <!-- Submit / Approve Button -->
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeReviewModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-100 transition">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium shadow-lg shadow-emerald-600/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Approve & Issue Prescription</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- JAVASCRIPT APPLICATION CORE -->
+    <script>
+        // Default Mock Seed Data
+        const defaultDoctors = [
+            { id: 'doc123', pass: 'password123', name: 'Dr. Robert Smith, MD', specialization: 'Cardiologist', hospital: 'City General Hospital', email: 'robert.smith@hospital.com', license: 'MED-88492' }
+        ];
+
+        const defaultRequests = [
+            {
+                id: 'REQ-101',
+                patientName: 'Alice Johnson',
+                age: 34,
+                gender: 'Female',
+                symptoms: 'Persistent dry cough, mild fever, and shortness of breath during night hours.',
+                date: '2026-06-03 09:30',
+                status: 'Pending',
+                diagnosis: '',
+                medicines: [],
+                tests: [],
+                advice: ''
+            },
+            {
+                id: 'REQ-102',
+                patientName: 'Michael Chang',
+                age: 45,
+                gender: 'Male',
+                symptoms: 'Sharp localized pain in lower left chest area after physical exertion.',
+                date: '2026-06-04 11:15',
+                status: 'Pending',
+                diagnosis: '',
+                medicines: [],
+                tests: [],
+                advice: ''
+            },
+            {
+                id: 'REQ-103',
+                patientName: 'Sarah Jenkins',
+                age: 29,
+                gender: 'Female',
+                symptoms: 'Migraine headaches accompanied by sensitivity to light and mild nausea.',
+                date: '2026-06-02 14:20',
+                status: 'Approved',
+                diagnosis: 'Acute Tension & Migraine Headache',
+                medicines: [
+                    { name: 'Sumatriptan', dosage: '50mg', frequency: 'As needed', duration: '5 days' },
+                    { name: 'Naproxen', dosage: '500mg', frequency: 'Twice daily with food', duration: '3 days' }
+                ],
+                tests: ['Complete Blood Count (CBC)'],
+                advice: 'Avoid bright screens, get adequate sleep in a dark quiet room.'
+            }
+        ];
+
+        // Initialize Local Storage state if empty
+        if (!localStorage.getItem('med_doctors')) {
+            localStorage.setItem('med_doctors', JSON.stringify(defaultDoctors));
+        }
+        if (!localStorage.getItem('med_requests')) {
+            localStorage.setItem('med_requests', JSON.stringify(defaultRequests));
+        }
+
+        // Current Session State
+        let currentDoctor = JSON.parse(localStorage.getItem('med_current_doctor')) || null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentDoctor) {
+                showDashboard();
+            } else {
+                showAuth();
+            }
+        });
+
+        // Authentication Tab Switcher
+        function switchAuthTab(tab) {
+            const loginBtn = document.getElementById('loginTabBtn');
+            const registerBtn = document.getElementById('registerTabBtn');
+            const loginContainer = document.getElementById('loginFormContainer');
+            const registerContainer = document.getElementById('registerFormContainer');
+
+            if (tab === 'login') {
+                loginBtn.className = "flex-1 py-3 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 bg-white transition";
+                registerBtn.className = "flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700 transition";
+                loginContainer.classList.remove('hidden');
+                registerContainer.classList.add('hidden');
+            } else {
+                registerBtn.className = "flex-1 py-3 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 bg-white transition";
+                loginBtn.className = "flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700 transition";
+                registerContainer.classList.remove('hidden');
+                loginContainer.classList.add('hidden');
+            }
+        }
+
+        // Handle Login
+        function handleLogin(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('loginId').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            const doctors = JSON.parse(localStorage.getItem('med_doctors')) || [];
+            const found = doctors.find(d => (d.id === identifier || d.email === identifier) && d.pass === password);
+
+            if (found) {
+                currentDoctor = found;
+                localStorage.setItem('med_current_doctor', JSON.stringify(currentDoctor));
+                showDashboard();
+                showToast('Login successful! Welcome back.', 'success');
+            } else {
+                showToast('Invalid ID/Email or Password. Please try again.', 'error');
+            }
+        }
+
+        // Handle Registration
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const specialization = document.getElementById('regSpecialization').value.trim();
+            const license = document.getElementById('regLicense').value.trim();
+            const hospital = document.getElementById('regHospital').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value.trim();
+
+            const doctors = JSON.parse(localStorage.getItem('med_doctors')) || [];
+            if (doctors.some(d => d.email === email)) {
+                showToast('An account with this email already exists.', 'error');
+                return;
+            }
+
+            const newDoc = {
+                id: 'doc_' + Math.floor(1000 + Math.random() * 9000),
+                pass,
+                name,
+                specialization,
+                hospital,
+                email,
+                license
+            };
+
+            doctors.push(newDoc);
+            localStorage.setItem('med_doctors', JSON.stringify(doctors));
+            currentDoctor = newDoc;
+            localStorage.setItem('med_current_doctor', JSON.stringify(currentDoctor));
+            
+            showDashboard();
+            showToast('Account registered successfully! Welcome.', 'success');
+        }
+
+        // Handle Logout
+        function handleLogout() {
+            currentDoctor = null;
+            localStorage.removeItem('med_current_doctor');
+            showAuth();
+            showToast('Logged out securely.', 'info');
+        }
+
+        function showAuth() {
+            document.getElementById('authView').classList.remove('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('authView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            
+            // Set header info
+            if (currentDoctor) {
+                document.getElementById('headerDocName').innerText = currentDoctor.name;
+                document.getElementById('headerDocSpec').innerText = currentDoctor.specialization;
+                const initials = currentDoctor.name.replace('Dr. ', '').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                document.getElementById('doctorAvatarInitials').innerText = initials;
+            }
+            loadDashboardData();
+        }
+
+        // Load & Render Dashboard Data
+        function loadDashboardData() {
+            const requests = JSON.parse(localStorage.getItem('med_requests')) || [];
+            
+            // Stats calculation
+            const total = requests.length;
+            const pending = requests.filter(r => r.status === 'Pending').length;
+            const approved = requests.filter(r => r.status === 'Approved').length;
+            const uniquePatients = new Set(requests.map(r => r.patientName)).size;
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statPending').innerText = pending;
+            document.getElementById('statApproved').innerText = approved;
+            document.getElementById('statPatients').innerText = uniquePatients;
+
+            filterRequests();
+        }
+
+        // Filter and Render Requests Table
+        function filterRequests() {
+            const requests = JSON.parse(localStorage.getItem('med_requests')) || [];
+            const query = document.getElementById('searchPatient').value.toLowerCase();
+            const statusVal = document.getElementById('statusFilter').value;
+
+            const filtered = requests.filter(r => {
+                const matchesQuery = r.patientName.toLowerCase().includes(query) || r.symptoms.toLowerCase().includes(query);
+                const matchesStatus = statusVal === 'all' || r.status === statusVal;
+                return matchesQuery && matchesStatus;
+            });
+
+            const tbody = document.getElementById('requestsTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(req => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition border-b border-slate-100";
+                
+                const statusBadge = req.status === 'Approved' 
+                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-check text-[10px]"></i> Approved</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200"><i class="fa-solid fa-clock text-[10px]"></i> Pending</span>`;
+
+                tr.innerHTML = `
+                    <td class="py-4 px-6">
+                        <div class="font-bold text-slate-900">${req.patientName}</div>
+                        <div class="text-xs text-slate-500">${req.age} yrs • ${req.gender}</div>
+                    </td>
+                    <td class="py-4 px-6 max-w-xs truncate text-slate-600" title="${req.symptoms}">
+                        ${req.symptoms}
+                    </td>
+                    <td class="py-4 px-6 text-xs text-slate-500">
+                        ${req.date}
+                    </td>
+                    <td class="py-4 px-6">
+                        ${statusBadge}
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <button onclick="openReviewModal('${req.id}')" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs rounded-xl border border-emerald-200 transition inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-stethoscope text-xs"></i>
+                            <span>${req.status === 'Approved' ? 'View Prescription' : 'Review & Respond'}</span>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Simulate New Patient Request
+        function simulateNewRequest() {
+            const firstNames = ['David', 'Emma', 'Liam', 'Sophia', 'Noah', 'Olivia', 'James', 'Ava', 'Ethan', 'Mia'];
+            const lastNames = ['Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin'];
+            const sampleSymptoms = [
+                'Severe sore throat with difficulty swallowing and swollen lymph nodes.',
+                'Persistent dry cough with low-grade fever and fatigue for 4 days.',
+                'Sharp abdominal cramping and bloating after meals.',
+                'Dizziness upon standing and occasional mild palpitations.',
+                'Lower back strain lifting heavy objects with stiffness in morning.'
+            ];
+            const genders = ['Male', 'Female'];
+
+            const randomName = `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+            const randomAge = Math.floor(20) + Math.floor(Math.random() * 50);
+            const randomGender = genders[Math.floor(Math.random() * genders.length)];
+            const randomSymptom = sampleSymptoms[Math.floor(Math.random() * sampleSymptoms.length)];
+
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+
+            const newReq = {
+                id: 'REQ-' + Math.floor(100 + Math.random() * 900),
+                patientName: randomName,
+                age: randomAge,
+                gender: randomGender,
+                symptoms: randomSymptom,
+                date: dateStr,
+                status: 'Pending',
+                diagnosis: '',
+                medicines: [],
+                tests: [],
+                advice: ''
+            };
+
+            const requests = JSON.parse(localStorage.getItem('med_requests')) || [];
+            requests.unshift(newReq);
+            localStorage.setItem('med_requests', JSON.stringify(requests));
+
+            loadDashboardData();
+            showToast(`New consultation request added for ${randomName}!`, 'success');
+        }
+
+        // Open Review Modal
+        function openReviewModal(reqId) {
+            const requests = JSON.parse(localStorage.getItem('med_requests')) || [];
+            const req = requests.find(r => r.id === reqId);
+            if (!req) return;
+
+            document.getElementById('modalRequestId').value = req.id;
+            document.getElementById('modalPatientName').innerText = req.patientName;
+            document.getElementById('modalPatientMeta').innerText = `Age: ${req.age} | Gender: ${req.gender} | ID: ${req.id}`;
+            document.getElementById('modalSymptoms').innerText = req.symptoms;
+
+            document.getElementById('modalDiagnosis').value = req.diagnosis || '';
+            document.getElementById('modalAdvice').value = req.advice || '';
+
+            // Render medicines
+            const medContainer = document.getElementById('medicineListContainer');
+            medContainer.innerHTML = '';
+            
+            const medsToLoad = req.medicines && req.medicines.length > 0 ? req.medicines : [
+                { name: 'Paracetamol', dosage: '500mg', frequency: 'Twice daily', duration: '5 days' }
+            ];
+
+            medsToLoad.forEach(m => {
+                appendMedicineRow(m.name, m.dosage, m.frequency, m.duration);
+            });
+
+            // Checkboxes
+            const checkboxes = document.querySelectorAll('input[name="medTests"]');
+            checkboxes.forEach(cb => {
+                cb.checked = req.tests && req.tests.includes(cb.value);
+            });
+
+            document.getElementById('reviewModal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+        }
+
+        function addMedicineRow(name = '', dosage = '', frequency = '', duration = '') {
+            const container = document.getElementById('medicineListContainer');
+            const div = document.createElement('div');
+            div.className = "flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200";
+            div.innerHTML = `
+                <input type="text" placeholder="Medicine Name" value="${name}" class="med-name flex-2 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none" required>
+                <input type="text" placeholder="Dosage (e.g. 500mg)" value="${dosage}" class="med-dosage flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none" required>
+                <input type="text" placeholder="Frequency" value="${frequency}" class="med-freq flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none" required>
+                <input type="text" placeholder="Duration" value="${duration}" class="med-dur flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none" required>
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-600 p-1.5 transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
+            `;
+            container.appendChild(div);
+        }
+
+        function appendMedicineRow(name, dosage, frequency, duration) {
+            addMedicineRow(name, dosage, frequency, duration);
+        }
+
+        // Submit Prescription & Approve
+        function submitPrescription(e) {
+            e.preventDefault();
+            const reqId = document.getElementById('modalRequestId').value;
+            const diagnosis = document.getElementById('modalDiagnosis').value.trim();
+            const advice = document.getElementById('modalAdvice').value.trim();
+
+            // Collect medicines
+            const medRows = document.querySelectorAll('#medicineListContainer > div');
+            const medicines = [];
+            medRows.forEach(row => {
+                medicines.push({
+                    name: row.querySelector('.med-name').value,
+                    dosage: row.querySelector('.med-dosage').value,
+                    frequency: row.querySelector('.med-freq').value,
+                    duration: row.querySelector('.med-dur').value
+                });
+            });
+
+            // Collect tests
+            const tests = [];
+            document.querySelectorAll('input[name="medTests"]:checked').forEach(cb => {
+                tests.push(cb.value);
+            });
+
+            const requests = JSON.parse(localStorage.getItem('med_requests')) || [];
+            const index = requests.findIndex(r => r.id === reqId);
+            if (index !== -1) {
+                requests[index].status = 'Approved';
+                requests[index].diagnosis = diagnosis;
+                requests[index].medicines = medicines;
+                requests[index].tests = tests;
+                requests[index].advice = advice;
+
+                localStorage.setItem('med_requests', JSON.stringify(requests));
+                closeReviewModal();
+                loadDashboardData();
+                showToast('Prescription issued & request approved successfully!', 'success');
+            }
+        }
+
+        // Custom Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-emerald-600 text-white';
+            let icon = 'fa-circle-check';
+            if (type === 'error') {
+                bgClass = 'bg-red-600 text-white';
+                icon = 'fa-triangle-exclamation';
+            } else if (type === 'info') {
+                bgClass = 'bg-slate-800 text-white';
+                icon = 'fa-circle-info';
+            }
+
+            toast.className = `${bgClass} px-4 py-3 rounded-xl shadow-lg text-xs font-medium flex items-center gap-3 pointer-events-auto fade-in border border-white/20`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+     <a href="medical store portal login.html" target="_top"> medical store portal login</a>  </body></div>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Innovation | Patient Portal & Booking System (SIH 2026)</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS Styles with Antigravity & Hospital Background Theme -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            perspective: 1200px;
+        }
+
+        .hospital-hero-bg {
+            background-image: linear-gradient(to bottom, rgba(11, 15, 25, 0.90), rgba(11, 15, 25, 0.96)), 
+                              url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float-slow {
+            animation: float-slow 6s ease-in-out infinite;
+        }
+
+        .antigravity-card {
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(14, 165, 233, 0.08);
+            transition: all 0.3s ease;
+        }
+        .antigravity-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(56, 189, 248, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-sky-500 selection:text-white min-h-screen flex flex-col justify-between hospital-hero-bg">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 bg-slate-950/85 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-sky-500/30">
+                    <i class="fa-solid fa-user-shield text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold tracking-widest text-sky-400 uppercase block">Apex Innovation</span>
+                    <span class="text-lg font-extrabold text-white tracking-tight">PATIENT SECURE PORTAL <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 border border-sky-500/30 text-sky-300 font-semibold ml-1">SIH 2026</span></span>
+                </div>
+            </div>
+
+            <div id="user-session-indicator" class="hidden items-center space-x-3">
+                <span class="text-xs text-slate-400">Logged in as: <strong id="logged-identifier" class="text-sky-400">User</strong></span>
+                <button onclick="logoutSession()" class="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/20 transition">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 py-12 flex-1 w-full flex items-center justify-center">
+
+        <!-- ================= VIEW 1: LOGIN (Aadhaar / ABHA / Mobile / Email + OTP) ================= -->
+        <div id="view-login" class="w-full antigravity-card rounded-3xl p-8 sm:p-10 shadow-2xl animate-float-slow">
+            <div class="text-center mb-8">
+                <span class="text-xs font-bold uppercase tracking-widest text-sky-400 mb-2 block">Secure Authentication</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Patient Login Portal</h2>
+                <p class="text-sm text-slate-400 mt-2">Enter your Aadhaar No., ABHA ID, Mobile Number, or Email ID to receive an OTP.</p>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Login Credential</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <i class="fa-solid fa-id-card"></i>
+                        </span>
+                        <input type="text" id="login-input" placeholder="Enter Aadhaar, ABHA ID, Mobile, or Email..." class="w-full bg-slate-900 border border-slate-700 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition shadow-inner">
+                    </div>
+                </div>
+
+                <!-- OTP Section (Hidden initially) -->
+                <div id="otp-container" class="hidden space-y-4 pt-2">
+                    <div class="p-3 bg-sky-500/10 border border-sky-500/30 rounded-xl text-xs text-sky-300 flex items-center justify-between">
+                        <span><i class="fa-solid fa-circle-info mr-1.5"></i> OTP Sent successfully! (Simulated Code: <strong>1234</strong>)</span>
+                        <span class="font-bold underline cursor-pointer" onclick="alert('New OTP: 1234')">Resend OTP</span>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Enter 4-Digit OTP</label>
+                        <input type="text" id="otp-input" maxlength="4" placeholder="1234" class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3.5 text-center tracking-widest text-lg font-bold text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition shadow-inner">
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="button" id="auth-btn" onclick="handleAuthAction()" class="w-full py-4 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-sm transition shadow-lg shadow-sky-500/25">
+                        Generate OTP
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 2: DISEASE SEARCH & DOCTOR AVAILABILITY ================= -->
+        <div id="view-dashboard" class="w-full antigravity-card rounded-3xl p-6 sm:p-8 shadow-2xl hidden">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-sky-400">Step 1 & 2</span>
+                    <h3 class="text-2xl font-extrabold text-white mt-1">Search Disease & View Doctor Availability</h3>
+                </div>
+                <button onclick="resetDashboard()" class="text-xs text-slate-400 hover:text-white underline">Change Search</button>
+            </div>
+
+            <div class="mt-6 space-y-6">
+                <!-- Search Box -->
+                <div class="flex items-center space-x-3">
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="disease-search" placeholder="Search disease, symptom, or specialty (e.g., Fever, Cardiology, Diabetes)..." class="w-full bg-slate-900 border border-slate-700 rounded-2xl pl-11 pr-4 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition shadow-inner">
+                    </div>
+                    <button onclick="searchDoctors()" class="px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-sm transition shadow-lg shadow-sky-500/25 shrink-0">
+                        Find Doctors
+                    </button>
+                </div>
+
+                <!-- Doctor Results Container -->
+                <div id="doctor-results" class="space-y-4 pt-4">
+                    <p class="text-xs text-slate-400 text-center py-6">Enter a disease or medical specialty above to check available doctors and time periods.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 3: APPOINTMENT BOOKING & PAYMENT ================= -->
+        <div id="view-booking" class="w-full antigravity-card rounded-3xl p-6 sm:p-8 shadow-2xl hidden">
+            <div class="pb-6 border-b border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-widest text-sky-400">Step 3 & 4</span>
+                <h3 class="text-2xl font-extrabold text-white mt-1">Confirm Appointment & Pay Fee</h3>
+            </div>
+
+            <div class="mt-6 space-y-6">
+                <div class="p-4 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Selected Doctor:</span>
+                        <strong id="summary-doc" class="text-white">Dr. Sharma</strong>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Specialty / Disease:</span>
+                        <strong id="summary-spec" class="text-sky-400">Cardiology</strong>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Available Time Period:</span>
+                        <strong id="summary-time" class="text-emerald-400">Today, 04:30 PM - 05:00 PM</strong>
+                    </div>
+                    <div class="flex justify-between text-sm pt-2 border-t border-slate-800">
+                        <span class="text-slate-400">Consultation Fee:</span>
+                        <strong class="text-white">₹500</strong>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3">Choose Payment Mode</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center p-4 bg-slate-900 border border-slate-700 rounded-2xl cursor-pointer hover:border-sky-500 transition">
+                            <input type="radio" name="payment-mode" value="online" checked class="text-sky-500 focus:ring-sky-500">
+                            <span class="ml-3 text-sm font-medium text-white"><i class="fa-solid fa-credit-card mr-2 text-sky-400"></i> Online (UPI / Card)</span>
+                        </label>
+                        <label class="flex items-center p-4 bg-slate-900 border border-slate-700 rounded-2xl cursor-pointer hover:border-sky-500 transition">
+                            <input type="radio" name="payment-mode" value="cash" class="text-sky-500 focus:ring-sky-500">
+                            <span class="ml-3 text-sm font-medium text-white"><i class="fa-solid fa-money-bill-wave mr-2 text-emerald-400"></i> Cash at Clinic</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between">
+                    <button onclick="switchView('view-dashboard')" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Back</button>
+                    <button onclick="confirmBookingAndPay()" class="px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm transition shadow-lg shadow-emerald-600/30">
+                        Confirm & Complete Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 4: REPORT UPLOAD (FINAL STEP) ================= -->
+        <div id="view-reports" class="w-full antigravity-card rounded-3xl p-6 sm:p-8 shadow-2xl hidden">
+            <div class="pb-6 border-b border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Step 5 (Final Step)</span>
+                <h3 class="text-2xl font-extrabold text-white mt-1">Upload Medical Reports</h3>
+                <p class="text-sm text-slate-400 mt-1">Your appointment is successfully booked! You can now upload your previous prescription, lab tests, or scan reports for the doctor.</p>
+            </div>
+
+            <div class="mt-6 space-y-6">
+                <div class="border-2 border-dashed border-slate-700 rounded-3xl p-8 text-center bg-slate-900/50 hover:border-sky-500 transition">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <h4 class="text-sm font-bold text-white mb-1">Click to upload or drag and drop</h4>
+                    <p class="text-xs text-slate-400">PDF, JPG, PNG or DICOM (Max size: 25MB)</p>
+                    <input type="file" id="report-file" class="hidden" onchange="handleFileSelected(this)">
+                    <button onclick="document.getElementById('report-file').click()" class="mt-4 px-5 py-2.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-sky-300 text-xs font-bold hover:bg-sky-500/30 transition">
+                        Browse Files
+                    </button>
+                    <p id="selected-file-name" class="text-xs text-emerald-400 font-semibold mt-3"></p>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between">
+                    <button onclick="skipReportUpload()" class="text-xs text-slate-400 hover:text-white underline">Skip for Now</button>
+                    <button onclick="finishPortalWorkflow()" class="px-8 py-3.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-sm transition shadow-lg shadow-sky-500/25">
+                        Complete & Return to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+            Apex Innovation &bull; Patient Secure Portal Module &bull; Smart India Hackathon 2026
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT WORKFLOW LOGIC -->
+    <script>
+        let currentStep = 'login';
+        let otpSent = false;
+        let loggedUserIdentifier = '';
+        let selectedDoctorData = {};
+
+        function switchView(viewId) {
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-booking').classList.add('hidden');
+            document.getElementById('view-reports').classList.add('hidden');
+
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        // Handle Login & OTP generation
+        function handleAuthAction() {
+            const inputVal = document.getElementById('login-input').value.trim();
+            const authBtn = document.getElementById('auth-btn');
+            const otpContainer = document.getElementById('otp-container');
+
+            if (!inputVal) {
+                alert('Please enter your Aadhaar No., ABHA ID, Mobile Number, or Email ID.');
+                return;
+            }
+
+            if (!otpSent) {
+                // Step 1: Generate OTP
+                otpSent = true;
+                otpContainer.classList.remove('hidden');
+                authBtn.innerText = "Verify OTP & Login";
+                loggedUserIdentifier = inputVal;
+            } else {
+                // Step 2: Verify OTP
+                const otpVal = document.getElementById('otp-input').value.trim();
+                if (otpVal !== "1234") {
+                    alert('Invalid OTP. Please enter 1234 for simulation.');
+                    return;
+                }
+
+                // Successful Login
+                document.getElementById('user-session-indicator').classList.remove('hidden');
+                document.getElementById('logged-identifier').innerText = loggedUserIdentifier;
+                switchView('view-dashboard');
+            }
+        }
+
+        function logoutSession() {
+            otpSent = false;
+            document.getElementById('otp-container').classList.add('hidden');
+            document.getElementById('login-input').value = '';
+            document.getElementById('otp-input').value = '';
+            document.getElementById('auth-btn').innerText = "Generate OTP";
+            document.getElementById('user-session-indicator').classList.add('hidden');
+            switchView('view-login');
+        }
+
+        function resetDashboard() {
+            document.getElementById('disease-search').value = '';
+            document.getElementById('doctor-results').innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Enter a disease or medical specialty above to check available doctors and time periods.</p>`;
+        }
+
+        // Mock Doctor Data based on disease search
+        const doctorDatabase = {
+            "fever": [
+                { name: "Dr. Verma", specialty: "General Medicine", time: "Today, 02:00 PM - 03:30 PM", fee: "₹300", hospital: "Apex City Clinic" },
+                { name: "Dr. R. K. Gupta", specialty: "Internal Medicine", time: "Today, 05:00 PM - 07:00 PM", fee: "₹400", hospital: "Metro Health Hub" }
+            ],
+            "cardiology": [
+                { name: "Dr. Sharma", specialty: "Cardiology & Heart Care", time: "Today, 04:30 PM - 06:00 PM", fee: "₹600", hospital: "Apex Cardiac Centre" },
+                { name: "Dr. Ananya Roy", specialty: "Interventional Cardiologist", time: "Tomorrow, 10:00 AM - 12:00 PM", fee: "₹800", hospital: "Global Heart Institute" }
+            ],
+            "diabetes": [
+                { name: "Dr. Mehta", specialty: "Endocrinologist", time: "Tomorrow, 11:00 AM - 01:00 PM", fee: "₹500", hospital: "Care Diabetes Clinic" }
+            ],
+            "skin": [
+                { name: "Dr. Priya Singh", specialty: "Dermatology", time: "Today, 03:00 PM - 05:00 PM", fee: "₹450", hospital: "Derma Glow Centre" }
+            ]
+        };
+
+        function searchDoctors() {
+            const query = document.getElementById('disease-search').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('doctor-results');
+
+            if (!query) {
+                alert('Please enter a disease or symptom to search.');
+                return;
+            }
+
+            // Find matching doctor or default generic results
+            let foundDocs = [];
+            for (let key in doctorDatabase) {
+                if (query.includes(key) || key.includes(query)) {
+                    foundDocs = foundDocs.concat(doctorDatabase[key]);
+                }
+            }
+
+            if (foundDocs.length === 0) {
+                // Default fallback mock doctors for any search term
+                foundDocs = [
+                    { name: "Dr. Arvind Kumar", specialty: "General Specialist (" + query + ")", time: "Today, 04:00 PM - 06:00 PM", fee: "₹400", hospital: "Apex Central Hospital" },
+                    { name: "Dr. Sneha Pillai", specialty: "Senior Consultant", time: "Tomorrow, 10:00 AM - 01:00 PM", fee: "₹500", hospital: "Apollo Multi-Specialty" }
+                ];
+            }
+
+            let html = '';
+            foundDocs.forEach((doc, idx) => {
+                html += `
+                    <div class="p-5 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-sky-500/50 transition">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-bold text-white text-base">${doc.name}</h4>
+                                <span class="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[10px] font-semibold">${doc.specialty}</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-hospital mr-1"></i> ${doc.hospital}</p>
+                            <div class="flex items-center space-x-4 mt-2 text-xs">
+                                <span class="text-emerald-400 font-semibold"><i class="fa-regular fa-clock mr-1"></i> ${doc.time}</span>
+                                <span class="text-slate-300 font-bold">Fee: ${doc.fee}</span>
+                            </div>
+                        </div>
+                        <button onclick='proceedToBooking(${JSON.stringify(doc)})' class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs transition shadow-md shrink-0">
+                            Book Appointment
+                        </button>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function proceedToBooking(doc) {
+            selectedDoctorData = doc;
+            document.getElementById('summary-doc').innerText = doc.name;
+            document.getElementById('summary-spec').innerText = doc.specialty;
+            document.getElementById('summary-time').innerText = doc.time;
+            switchView('view-booking');
+        }
+
+        function confirmBookingAndPay() {
+            const paymentMode = document.querySelector('input[name="payment-mode"]:checked').value;
+            alert('Appointment successfully booked with ' + selectedDoctorData.name + '!\nPayment Method Selected: ' + paymentMode.toUpperCase());
+            switchView('view-reports');
+        }
+
+        function handleFileSelected(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('selected-file-name').innerText = "Selected Report: " + input.files[0].name;
+            }
+        }
+
+        function skipReportUpload() {
+            alert('Report upload skipped. You can upload reports anytime from your patient profile.');
+            switchView('view-dashboard');
+            resetDashboard();
+        }
+
+        function finishPortalWorkflow() {
+            alert('Medical report uploaded successfully and linked to your digital patient record!');
+            switchView('view-dashboard');
+            resetDashboard();
+        }
+    </script>
+     <a href="doctor portal login page.html" target="_top"> doctor portal login page</a>  </body></div>
+</body>
+</html>

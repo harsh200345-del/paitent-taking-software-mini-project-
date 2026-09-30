@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Diagnostics & Pathology Lab - Online Booking</title>
+    <style>
+        :root {
+            --primary-color: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary-color: #f0f9ff;
+            --text-color: #334155;
+            --border-color: #cbd5e1;
+            --success-color: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="email"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .tests-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .tests-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .test-card {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .test-card:hover {
+            border-color: var(--primary-color);
+            background-color: var(--secondary-color);
+        }
+
+        .test-card input {
+            cursor: pointer;
+        }
+
+        .collection-type {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .collection-type label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .total-section {
+            background-color: var(--secondary-color);
+            padding: 1rem;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        button[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .success-message {
+            display: none;
+            background-color: #dcfce7;
+            border: 1px solid var(--success-color);
+            color: #166534;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .success-message h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Apex Diagnostics & Pathology Lab</h1>
+        <p>Book your diagnostic tests online quickly and safely</p>
+    </header>
+
+    <div class="container">
+        <form id="appointmentForm">
+            <h2>1. Patient Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" required placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" required placeholder="10-digit mobile number">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="age">Age *</label>
+                    <input type="number" id="age" min="1" max="120" required placeholder="Age in years">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="example@domain.com">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address *</label>
+                <textarea id="address" required placeholder="Enter complete address for report delivery/sample collection"></textarea>
+            </div>
+
+            <h2>2. Select Pathology Tests</h2>
+            <div class="tests-grid">
+                <label class="test-card">
+                    <div>
+                        <strong>Complete Blood Count (CBC)</strong>
+                        <div style="font-size: 0.85rem; color: #64748b;">Hemoglobin, TLC, Platelets</div>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="test" value="CBC" data-price="500"> ₹500
+                    </div>
+                </label>
+                <label class="test-card">
+                    <div>
+                        <strong>Lipid Profile</strong>
+                        <div style="font-size: 0.85rem; color: #64748b;">Cholesterol, Triglycerides</div>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="test" value="Lipid Profile" data-price="800"> ₹800
+                    </div>
+                </label>
+                <label class="test-card">
+                    <div>
+                        <strong>Thyroid Panel (T3, T4, TSH)</strong>
+                        <div style="font-size: 0.85rem; color: #64748b;">Thyroid function analysis</div>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="test" value="Thyroid Panel" data-price="700"> ₹700
+                    </div>
+                </label>
+                <label class="test-card">
+                    <div>
+                        <strong>Diabetes Panel (HbA1c, FBS)</strong>
+                        <div style="font-size: 0.85rem; color: #64748b;">Blood Sugar Monitoring</div>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="test" value="Diabetes Panel" data-price="600"> ₹600
+                    </div>
+                </label>
+                <label class="test-card">
+                    <div>
+                        <strong>Liver Function Test (LFT)</strong>
+                        <div style="font-size: 0.85rem; color: #64748b;">Bilirubin, SGOT, SGPT</div>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="test" value="LFT" data-price="900"> ₹900
+                    </div>
+                </label>
+                <label class="test-card">
+                    <div>
+                        <strong>Kidney Function Test (KFT)</strong>
+                        <div style="font-size: 0.85rem; color: #64748b;">Creatinine, Urea, Electrolytes</div>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="test" value="KFT" data-price="850"> ₹850
+                    </div>
+                </label>
+            </div>
+
+            <h2>3. Appointment Details</h2>
+            <div class="form-group">
+                <label>Collection Type *</label>
+                <div class="collection-type">
+                    <label><input type="radio" name="collectionType" value="Home Collection" checked> Home Sample Collection (Free)</label>
+                    <label><input type="radio" name="collectionType" value="Lab Visit"> Visit Lab Center</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date">Preferred Date *</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="time">Preferred Time Slot *</label>
+                    <select id="time" required>
+                        <option value="">Select Time Slot</option>
+                        <option value="07:00 AM - 09:00 AM">07:00 AM - 09:00 AM</option>
+                        <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                        <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                        <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <span>Total Amount:</span>
+                <span id="totalAmount">₹0</span>
+            </div>
+
+            <button type="submit">Confirm Appointment</button>
+        </form>
+
+        <div id="successMessage" class="success-message">
+            <h3>Appointment Booked Successfully! 🎉</h3>
+            <p>Thank you, <span id="confirmName"></span>. Your appointment has been scheduled for <span id="confirmDate"></span> at <span id="confirmTime"></span>.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">A confirmation text has been sent with further instructions.</p>
+            <button onclick="resetForm()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--success-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Book Another Appointment</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Apex Diagnostics & Pathology Lab. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Set minimum date to today
+        const dateInput = document.getElementById('date');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+
+        // Calculate total amount dynamically
+        const checkboxes = document.querySelectorAll('input[name="test"]');
+        const totalAmountSpan = document.getElementById('totalAmount');
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateTotalPrice);
+        });
+
+        function updateTotalPrice() {
+            let total = 0;
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    total += parseInt(cb.getAttribute('data-price'));
+                }
+            });
+            totalAmountSpan.textContent = `₹${total}`;
+        }
+
+        // Handle Form Submission
+        const form = document.getElementById('appointmentForm');
+        const successMessage = document.getElementById('successMessage');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validate that at least one test is checked
+            const checkedTests = document.querySelectorAll('input[name="test"]:checked');
+            if (checkedTests.length === 0) {
+                alert('Please select at least one pathology test.');
+                return;
+            }
+
+            // Populate success details
+            document.getElementById('confirmName').textContent = document.getElementById('fullName').value;
+            document.getElementById('confirmDate').textContent = document.getElementById('date').value;
+            document.getElementById('confirmTime').textContent = document.getElementById('time').value;
+
+            // Hide form and show success message
+            form.style.display = 'none';
+            successMessage.style.display = 'block';
+        });
+
+        function resetForm() {
+            form.reset();
+            updateTotalPrice();
+            successMessage.style.display = 'none';
+            form.style.display = 'block';
+        }
+    </script>
+     <a href="organ and blood donation portal.html" target="_top"> organ and blood donation portal</a>  </body></div>
+</body>
+</html>
